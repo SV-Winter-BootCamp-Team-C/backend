@@ -94,7 +94,128 @@ paths:
                   message:
                     type: string
                     description: 오류 메시지
+  /api/surveys/{userId}/content/{surveyId}:
+    get:
+      summary: Get a user's answers to a survey
+      tags:
+        - GET
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+          description: The user ID
+        - in: path
+          name: surveyId
+          required: true
+          schema:
+            type: integer
+          description: The survey ID
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The number of items to return per page
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The page number
+      responses:
+        '200':
+          description: A user's answers to a survey
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  main_url:
+                    type: string
+                  title:
+                    type: string
+                  description:
+                    type: string
+                  create_at:
+                    type: string
+                    format: date-time
+                  deadline:
+                    type: string
+                    format: date-time
+                  user_id:
+                    type: integer
+                  totalPages:
+                    type: integer
+                  questions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        question_id:
+                          type: integer
+                        content:
+                          type: string
+                        image_url:
+                          type: string
+                        sub_content:
+                          type: string
+                        obj_content:
+                          type: array
+                          items:
+                            type: string
+        '404':
+          description: Survey not found
+        '500':
+          description: Failed to retrieve user's answers
 
+  /api/surveys/{userId}/search/{title}:
+    get:
+      summary: 설문조사를 제목으로 검색합니다.
+      tags:
+        - GET
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: integer
+          required: true
+          description: 검색하는 사용자 ID
+        - in: path
+          name: title
+          schema:
+            type: string
+          required: true
+          description: 검색할 설문조사의 제목
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: 한 페이지에 표시할 설문조사의 수
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: 표시할 페이지 번호
+      responses:
+        200:
+          description: 검색 결과와 함께 성공 메시지를 반환합니다.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  surveys:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Survey'
+                  totalPages:
+                    type: integer
+        400:
+          description: 필요한 파라미터가 없을 때 반환합니다.
+        404:
+          description: 검색 결과가 없을 때 반환합니다.
+        500:
+          description: 서버 오류가 발생했을 때 반환합니다.
   /api/surveys/{id}/join:
     get:
       summary: '내가 답변한 설문지'
@@ -138,151 +259,6 @@ paths:
           description: 'No answered surveys found for this user'
         '500':
           description: 'Server error'
-
-  /api/surveys/{id}:
-    put:
-      summary: 설문 수정 API
-      tags:
-        - PUT
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: integer
-          description: serveyId
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                userId:
-                  type: integer
-                  description: 사용자 ID
-                title:
-                  type: string
-                  description: 설문조사 제목
-                open:
-                  type: boolean
-                  description: 설문 공개 여부
-                font:
-                  type: string
-                  description: 폰트 설정
-                color:
-                  type: string
-                  description: 설문조사 색깔
-                buttonStyle:
-                  type: string
-                  description: 버튼 스타일
-                mainImageUrl:
-                  type: string
-                  description: 메인 이미지 URL
-                deadline:
-                  type: string
-                  format: date-time
-                  description: 설문조사 마감 기간
-                questions:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        description: 질문 타입 (MULTIPLE_CHOICE, SUBJECTIVE_QUESTION, CHECKBOX, DROPDOWN)
-                        enum:
-                          - MULTIPLE_CHOICE
-                          - SUBJECTIVE_QUESTION
-                          - CHECKBOX
-                          - DROPDOWN
-                      content:
-                        type: string
-                        description: 질문 내용
-                      imageUrl:
-                        type: string
-                        description: 질문 관련 이미지 URL
-                      choices:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            option:
-                              type: string
-                              description: 선택지 내용
-      responses:
-        '200':
-          description: 설문 수정 완료
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: 성공 메시지
-                  updatedSurvey:
-                    type: object
-                    properties:
-                      userId:
-                        type: integer
-                        description: 사용자 ID
-                      title:
-                        type: string
-                        description: 설문조사 제목
-                      open:
-                        type: boolean
-                        description: 설문 공개 여부
-                      font:
-                        type: string
-                        description: 폰트 설정
-                      color:
-                        type: string
-                        description: 설문조사 색깔
-                      buttonStyle:
-                        type: string
-                        description: 버튼 스타일
-                      mainImageUrl:
-                        type: string
-                        description: 메인 이미지 URL
-                      deadline:
-                        type: string
-                        format: date-time
-                        description: 설문조사 마감 기간
-                      updatedAt:
-                        type: string
-                        format: date-time
-                        description: 설문 수정 시간
-        '403':
-          description: 접근 및 수정 권한이 없습니다.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: 오류 메시지
-        '404':
-          description: 설문을 찾을 수 없습니다.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: 오류 메시지
-        '500':
-          description: 설문 수정 오류
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: 오류 메시지
 
   /api/surveys/{id}/all:
     get:
@@ -499,23 +475,275 @@ paths:
                     type: integer
         '500':
           description: 서버 에러 발생
-
-  /api/users/signup:
-    post:
-      summary: '사용자 회원가입'
+  /api/surveys/{id}:
+    put:
+      summary: 설문 수정 API
       tags:
-        - USER
+        - PUT
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: serveyId
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              type: object
+              properties:
+                userId:
+                  type: integer
+                  description: 사용자 ID
+                title:
+                  type: string
+                  description: 설문조사 제목
+                open:
+                  type: boolean
+                  description: 설문 공개 여부
+                font:
+                  type: string
+                  description: 폰트 설정
+                color:
+                  type: string
+                  description: 설문조사 색깔
+                buttonStyle:
+                  type: string
+                  description: 버튼 스타일
+                mainImageUrl:
+                  type: string
+                  description: 메인 이미지 URL
+                deadline:
+                  type: string
+                  format: date-time
+                  description: 설문조사 마감 기간
+                questions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        description: 질문 타입 (MULTIPLE_CHOICE, SUBJECTIVE_QUESTION, CHECKBOX, DROPDOWN)
+                        enum:
+                          - MULTIPLE_CHOICE
+                          - SUBJECTIVE_QUESTION
+                          - CHECKBOX
+                          - DROPDOWN
+                      content:
+                        type: string
+                        description: 질문 내용
+                      imageUrl:
+                        type: string
+                        description: 질문 관련 이미지 URL
+                      choices:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            option:
+                              type: string
+                              description: 선택지 내용
+      responses:
+        '200':
+          description: 설문 수정 완료
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 성공 메시지
+                  updatedSurvey:
+                    type: object
+                    properties:
+                      userId:
+                        type: integer
+                        description: 사용자 ID
+                      title:
+                        type: string
+                        description: 설문조사 제목
+                      open:
+                        type: boolean
+                        description: 설문 공개 여부
+                      font:
+                        type: string
+                        description: 폰트 설정
+                      color:
+                        type: string
+                        description: 설문조사 색깔
+                      buttonStyle:
+                        type: string
+                        description: 버튼 스타일
+                      mainImageUrl:
+                        type: string
+                        description: 메인 이미지 URL
+                      deadline:
+                        type: string
+                        format: date-time
+                        description: 설문조사 마감 기간
+                      updatedAt:
+                        type: string
+                        format: date-time
+                        description: 설문 수정 시간
+        '403':
+          description: 접근 및 수정 권한이 없습니다.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 오류 메시지
+        '404':
+          description: 설문을 찾을 수 없습니다.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 오류 메시지
+        '500':
+          description: 설문 수정 오류
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 오류 메시지
+    post:
+      tags:
+        - POST
+      summary: 설문 답변 저장 API
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: 설문 ID
+          schema:
+            type: integer
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                  description: 사용자 ID
+                questions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      questionId:
+                        type: integer
+                      content:
+                        type: string
+                      imageUrl:
+                        type: string
+                      objContent:
+                        type: array
+                        items:
+                          type: integer
+                      subContent:
+                        type: string
+                required:
+                  - userId
+                  - questions
       responses:
         '201':
-          description: '회원가입 성공'
-        '400':
-          description: '회원가입 실패'
+          description: 답변 저장 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 성공 메시지
+                    example: '저장되었습니다.'
+                  surveyId:
+                    type: integer
+                    description: 생성된 설문조사의 ID
+        '408':
+          description: 요청 실패
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: '저장을 실패하였습니다.'
+    get:
+      summary: '특정 설문조사 상세 조회'
+      tags:
+        - GET
+      description: 특정 설문조사의 상세 정보를 가져옵니다.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: 조회할 설문조사의 ID
+      responses:
+        '200':
+          description: 성공적으로 설문조사 정보를 가져옴
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Survey'
+        '404':
+          description: 설문조사를 찾을 수 없을 때의 응답
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: '설문조사가 존재하지 않습니다.'
+        '500':
+          description: 서버 오류
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: '서버 오류 발생'
+/api/users/signup:
+  post:
+    summary: '사용자 회원가입'
+    tags:
+      - USER
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/User'
+    responses:
+      '201':
+        description: '회원가입 성공'
+      '400':
+        description: '회원가입 실패'
   /api/users/login:
     post:
       summary: '사용자 로그인'
@@ -578,129 +806,6 @@ paths:
       responses:
         '200':
           description: '사용자 정보 반환'
-
-  /api/surveys/{userId}/content/{surveyId}:
-    get:
-      summary: Get a user's answers to a survey
-      tags:
-        - GET
-      parameters:
-        - in: path
-          name: userId
-          required: true
-          schema:
-            type: integer
-          description: The user ID
-        - in: path
-          name: surveyId
-          required: true
-          schema:
-            type: integer
-          description: The survey ID
-        - in: query
-          name: limit
-          schema:
-            type: integer
-          description: The number of items to return per page
-        - in: query
-          name: page
-          schema:
-            type: integer
-          description: The page number
-      responses:
-        '200':
-          description: A user's answers to a survey
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  main_url:
-                    type: string
-                  title:
-                    type: string
-                  description:
-                    type: string
-                  create_at:
-                    type: string
-                    format: date-time
-                  deadline:
-                    type: string
-                    format: date-time
-                  user_id:
-                    type: integer
-                  totalPages:
-                    type: integer
-                  questions:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        question_id:
-                          type: integer
-                        content:
-                          type: string
-                        image_url:
-                          type: string
-                        sub_content:
-                          type: string
-                        obj_content:
-                          type: array
-                          items:
-                            type: string
-        '404':
-          description: Survey not found
-        '500':
-          description: Failed to retrieve user's answers
-
-  /api/surveys/{userId}/search/{title}:
-    get:
-      summary: 설문조사를 제목으로 검색합니다.
-      tags:
-        - GET
-      parameters:
-        - in: path
-          name: userId
-          schema:
-            type: integer
-          required: true
-          description: 검색하는 사용자 ID
-        - in: path
-          name: title
-          schema:
-            type: string
-          required: true
-          description: 검색할 설문조사의 제목
-        - in: query
-          name: limit
-          schema:
-            type: integer
-          description: 한 페이지에 표시할 설문조사의 수
-        - in: query
-          name: page
-          schema:
-            type: integer
-          description: 표시할 페이지 번호
-      responses:
-        200:
-          description: 검색 결과와 함께 성공 메시지를 반환합니다.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  surveys:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Survey'
-                  totalPages:
-                    type: integer
-        400:
-          description: 필요한 파라미터가 없을 때 반환합니다.
-        404:
-          description: 검색 결과가 없을 때 반환합니다.
-        500:
-          description: 서버 오류가 발생했을 때 반환합니다.
 
 components:
   schemas:
