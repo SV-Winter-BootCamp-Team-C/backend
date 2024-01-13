@@ -34,6 +34,7 @@ const surveyResult = async (req, res) => {
     }
 
     const response = {
+      surveyId: survey.id,
       user_name: survey.User.name,
       title: survey.title,
       open: survey.open,
