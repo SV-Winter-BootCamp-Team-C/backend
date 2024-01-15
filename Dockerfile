@@ -10,6 +10,7 @@ COPY package*.json /app/
 # npm 패키지 설치
 RUN npm install
 RUN npm install -g nodemon
+RUN npm install redis
 
 # package.json과 package-lock.json 파일을 /usr/src/app 디렉토리로 복사
 COPY . /app
@@ -18,4 +19,3 @@ EXPOSE 8000
 
 #CMD ["npm", "start"]
 CMD ["nodemon", "-L", "server/index.js"]
-
