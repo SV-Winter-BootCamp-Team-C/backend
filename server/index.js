@@ -1,5 +1,6 @@
 require('dotenv').config(); // 이 부분을 코드 맨 위로 옮기세요.
 const express = require('express');
+const redis = require('redis');
 const app = express();
 const port = process.env.NODE_DOCKER_PORT || 8000;
 const YAML = require('js-yaml');
@@ -8,6 +9,9 @@ const swaggerUi = require('swagger-ui-express');
 const specs = YAML.load(
   fs.readFileSync('./swagger/swaggerconfig.yaml', 'utf8'),
 );
+const redisClient = new redis.createClient();
+const DEFAULT_EXPIRATION = 3600
+
 const { sequelize } = require('../models');
 const { createAndDownloadExcel } = require('../excel/excelGengerate');
 const surveyRouters = require('../routers/surveyRouter');
