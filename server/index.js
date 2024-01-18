@@ -10,6 +10,7 @@ const specs = YAML.load(
 );
 const { sequelize } = require('../models');
 const { createAndDownloadExcel } = require('../excel/excelGengerate');
+const { callChatGPT } = require('../gpt/gptAPI');
 const surveyRouters = require('../routers/surveyRouter');
 const userRouters = require('../routers/UserRouter');
 const { getImageByAPI } = require('../controller/getImageBySearch');
@@ -20,6 +21,8 @@ let corsOptions = {
   origin: '*', // 출처 허용 옵션
   credential: true, // 사용자 인증이 필요한 리소스(쿠키 등) 접근
 };
+
+callChatGPT();
 
 app.use(cors(corsOptions));
 
